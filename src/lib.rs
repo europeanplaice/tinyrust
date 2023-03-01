@@ -39,7 +39,7 @@ pub fn ignore_whitespace(code: &String, idx: &mut usize) {
 }
 
 pub fn parse_expression(code: &String, idx: &mut usize) -> i32 {
-    let rhs = consume_number(&code, idx);
+    let lhs = consume_number(&code, idx);
     let c;
     let op: Op;
     ignore_whitespace(&code, idx);
@@ -53,12 +53,12 @@ pub fn parse_expression(code: &String, idx: &mut usize) -> i32 {
     };
     *idx += 1;
     ignore_whitespace(&code, idx);
-    let lhs = consume_number(&code, idx);
+    let rhs = consume_number(&code, idx);
     let res = match op {
-        Op::Add => rhs + lhs,
-        Op::Sub => rhs - lhs,
-        Op::Mul => rhs * lhs,
-        Op::Div => rhs / lhs,
+        Op::Add => lhs + rhs,
+        Op::Sub => lhs - rhs,
+        Op::Mul => lhs * rhs,
+        Op::Div => lhs / rhs,
     };
     return res;
 }
