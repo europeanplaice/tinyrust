@@ -5,7 +5,7 @@ pub enum Op {
     Div,
 }
 
-pub fn consume_number(code: &String, idx: &mut usize) -> i32 {
+pub fn parse_number(code: &String, idx: &mut usize) -> i32 {
     let mut c;
     let mut number_str = String::new();
     loop {
@@ -39,7 +39,7 @@ pub fn ignore_whitespace(code: &String, idx: &mut usize) {
 }
 
 pub fn parse_expression(code: &String, idx: &mut usize) -> i32 {
-    let lhs = consume_number(&code, idx);
+    let lhs = parse_number(&code, idx);
     let c;
     let op: Op;
     ignore_whitespace(&code, idx);
@@ -53,7 +53,7 @@ pub fn parse_expression(code: &String, idx: &mut usize) -> i32 {
     };
     *idx += 1;
     ignore_whitespace(&code, idx);
-    let rhs = consume_number(&code, idx);
+    let rhs = parse_number(&code, idx);
     let res = match op {
         Op::Add => lhs + rhs,
         Op::Sub => lhs - rhs,
@@ -66,14 +66,14 @@ pub fn parse_expression(code: &String, idx: &mut usize) -> i32 {
 #[cfg(test)]
 mod tests {
 
-    use crate::consume_number;
+    use crate::parse_number;
     use crate::ignore_whitespace;
     use crate::parse_expression;
 
     #[test]
     fn parse_test() {
         let mut idx: usize = 0;
-        let c = consume_number(&"123abc".to_string(), &mut idx);
+        let c = parse_number(&"123abc".to_string(), &mut idx);
         assert_eq!(c, 123);
         assert_eq!(idx, 3);
     }
