@@ -26,12 +26,14 @@ pub fn parse_number(code: &String, idx: &mut usize) -> i32 {
 }
 
 pub fn ignore_whitespace(code: &String, idx: &mut usize) {
-    let mut c;
     loop {
-        c = code.chars().nth(*idx).unwrap();
-        if c == ' ' {
-            *idx += 1;
-            continue;
+        if let Some(c) = code.chars().nth(*idx) {
+            if c == ' ' {
+                *idx += 1;
+                continue;
+            } else {
+                return;
+            }
         } else {
             return;
         }
@@ -39,28 +41,37 @@ pub fn ignore_whitespace(code: &String, idx: &mut usize) {
 }
 
 pub fn parse_expression(code: &String, idx: &mut usize) -> i32 {
-    let lhs = parse_number(&code, idx);
-    let c;
-    let op: Op;
-    ignore_whitespace(&code, idx);
-    c = code.chars().nth(*idx).unwrap();
-    op = match c {
-        '+' => Op::Add,
-        '-' => Op::Sub,
-        '*' => Op::Mul,
-        '/' => Op::Div,
-        _ => panic!("unexpected operator"),
-    };
-    *idx += 1;
-    ignore_whitespace(&code, idx);
-    let rhs = parse_number(&code, idx);
-    let res = match op {
-        Op::Add => lhs + rhs,
-        Op::Sub => lhs - rhs,
-        Op::Mul => lhs * rhs,
-        Op::Div => lhs / rhs,
-    };
-    return res;
+    let mut lhs = parse_number(&code, idx);
+    loop {
+        let op: Op;
+        ignore_whitespace(&code, idx);
+        if let Some(c) = code.chars().nth(*idx) {
+            op = match c {
+                '+' => Op::Add,
+                '-' => Op::Sub,
+                '*' => Op::Mul,
+                '/' => Op::Div,
+                _ => panic!("unexpected operator"),
+            };
+            *idx += 1;
+            ignore_whitespace(&code, idx);
+            let rhs = parse_number(&code, idx);
+            lhs = match op {
+                Op::Add => lhs + rhs,
+                Op::Sub => lhs - rhs,
+                Op::Mul => lhs * rhs,
+                Op::Div => lhs / rhs,
+            };
+            if *idx == code.len() - 1 {
+                break;
+            } else {
+                *idx += 1;
+            }
+        } else {
+            break;
+        }
+    }
+    return lhs;
 }
 
 #[cfg(test)]
@@ -88,10 +99,10 @@ mod tests {
     #[test]
     fn test_parse_expression() {
         let mut idx: usize = 0;
-        let res = parse_expression(&"1 + 2".to_string(), &mut idx);
-        assert_eq!(res, 3);
+        let res = parse_expression(&"1 + 2 + 1".to_string(), &mut idx);
+        assert_eq!(res, 4);
         let mut idx: usize = 0;
-        let res = parse_expression(&"100 + 2   ".to_string(), &mut idx);
-        assert_eq!(res, 102);
+        let res = parse_expression(&"100 + 2  - 2 ".to_string(), &mut idx);
+        assert_eq!(res, 100);
     }
 }
